@@ -1,0 +1,43 @@
+Const WindowsFolder = 0
+Const SystemFolder = 1
+Const TemporaryFolder = 2
+Dim fso: Set fso = CreateObject("Scripting.FileSystemObject")
+Dim tempFolder: tempFolder = fso.GetSpecialFolder(TemporaryFolder)
+'MsgBox(tempFolder & "\myTemp.txt")
+
+Set objFSO = CreateObject("Scripting.FileSystemObject")
+Set objFile = objFSO.OpenTextFile(tempFolder & "\myTemp.txt", 1)
+
+   Dim myfullname 
+  myfullname = objFile.ReadLine   
+  objFile.Close
+ ' MsgBox(myfullname)
+  
+'********************************  
+'let's parse the file and the path
+Dim filesys, p,f 
+Set filesys = CreateObject("Scripting.FileSystemObject")
+Set p = filesys.GetParentFolderName(myfullname)
+Set f = filesys.GetFileName(myfullname)
+
+Dim myfilename
+Set myfilename = (Left(f,Len(f)-4))
+'MsgBox(myfilename)
+
+
+'*************************
+'exporting code to mach3
+OpenTeachFile "3Dprint.tap"
+'open skeinforge produced g-code file
+Set objFSO = CreateObject("Scripting.FileSystemObject")
+Set objFile = objFSO.OpenTextFile(p & "\" & myfilename & ".gcode", 1)
+
+'loop to write file to mach3 teachfile
+Do Until objFile.AtEndOfStream
+ 'msgbox(objFile.ReadLine)
+ Code objFile.ReadLine
+Loop
+'close and load the code to mach3
+objFile.Close
+CloseTeachFile
+Call LoadTeachFile
